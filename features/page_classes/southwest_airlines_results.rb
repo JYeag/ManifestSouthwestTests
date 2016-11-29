@@ -5,4 +5,5 @@ class SouthwestAirlinesResults
 
   list_items(:disabled_dates, :id => 'carouselDisabled')
   list_items(:enabled_dates, :id => 'carouselEnabledSodaIneligible')
+
 end
