@@ -1,4 +1,3 @@
-require 'page-object'
 class SouthwestAirlinesMain
   include PageObject
   page_url 'https://www.southwest.com/'
