@@ -1,42 +1,31 @@
 When(/^I search for a flight using the default dates$/) do
-  visit_page SouthwestAirlinesMain do |page|
-    page.origin = 'CMH'
-    page.destination = 'FLL'
-    @depart_date = Date.parse(page.depart)
-    @return_date = Date.parse(page.return)
-    page.submit
-    sleep(1)
+  visit_page SouthwestHome
+  on_page SouthwestHome do |page|
+    @departure_date = Date.parse(page.departure_date)
+    @return_date = Date.parse(page.return_date)
+    page.departure_airport = 'CMH'
+    page.arrival_airport = 'FLL'
+    page.search
   end
 end
 
 Then(/^the dates I searched for are highlighted in the search results$/) do
-  on_page SouthwestAirlinesResults do |page|
-    depart_result = Date.parse(page.departure)
-    return_result = Date.parse(page.returning)
-
-    expect(depart_result).to eq @depart_date
-    expect(return_result).to eq @return_date
+  on_page SouthwestResults do |page|
+    highlighted_departure_date = Date.parse(page.highlighted_departure_date)
+    highlighted_return_date = Date.parse(page.highlighted_return_date)
+    expect(highlighted_departure_date).to eq @departure_date
   end
 end
 
 Then(/^I can't choose a departure date from the past$/) do
-  on_page SouthwestAirlinesResults do |page|
-    page.depart_div_element.list_item_elements.each do |checked_date|
-      date = Date.parse(checked_date.attribute('carouselfulldate'))
-      if(checked_date.attribute('class') == 'carouselDisabled')
-        expect(date).to be < Date.today
-      else
-        expect(date).to be >= Date.today
-      end
+  on_page SouthwestResults do |page|
+    list_of_disabled_dates = page.list_of_disabled_dates
+    list_of_enabled_dates = page.list_of_enabled_dates
+    list_of_disabled_dates.each do |disabled_date|
+        expect(Date.parse(disabled_date.attribute('carouselfulldate'))).to be < Date.today
     end
-
-    page.return_div_element.list_item_elements.each do |checked_date|
-      date = Date.parse(checked_date.attribute('carouselfulldate'))
-      if(checked_date.attribute('class') == 'carouselDisabled')
-        expect(date).to be < Date.today
-      else
-        expect(date).to be >= Date.today
-      end
+    list_of_enabled_dates.each do |enabled_date|
+        expect(Date.parse(enabled_date.attribute('carouselfulldate'))).to be >= Date.today
     end
   end
 end
